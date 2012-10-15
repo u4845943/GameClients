@@ -52,8 +52,11 @@ public class PathBuilder extends Thread {
 						"w9..w\n"+
 						"wwwww\n";
 		
-		TiledMap map = new ArrayTiledMap(64, 64, new Coordinate(32,32));
-		map.set(new Coordinate(-2,-2), field);
+//		TiledMap map = new ArrayTiledMap(64, 64, new Coordinate(32,32));
+//		map.set(new Coordinate(-2,-2), field);
+		
+		ArrayTiledMap map = new ArrayTiledMap(64, 64, new Coordinate(32,32));
+		map.add(new Coordinate(0,0), field);
 		
 		
 		CoordPathFinder finder = new CoordPathFinder(map, goal);
@@ -68,5 +71,8 @@ public class PathBuilder extends Thread {
 			}
 			System.out.print("Next");
 		}
+		
+		
+
 	}
 }

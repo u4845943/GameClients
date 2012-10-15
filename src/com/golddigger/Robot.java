@@ -6,6 +6,7 @@ import com.golddigger.service.ServerService;
 import com.golddigger.service.TiledMap;
 import com.golddigger.service.WebControllerClientService;
 import com.golddigger.tools.Explorer;
+import com.golddigger.util.GoldCollector;
 import com.golddigger.util.WebController;
 
 public class Robot extends Thread {
@@ -21,6 +22,9 @@ public class Robot extends Thread {
 	public void run(){
 		Explorer.explore(map, server);
 		System.out.println(map.toString());
+		GoldCollector gc = new GoldCollector(map, server);
+		gc.setGoals();
+		gc.getGold();
 	}
 
 	public static void main(String[] args) {
