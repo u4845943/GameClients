@@ -31,6 +31,7 @@ public class Explorer {
 			if (visited.contains(next)) continue;
 			if (client.move(direction).contains("FAILED")) continue;
 			visited.add(next);
+			System.out.println(map.toString() + "\n\n\n\n\n");
 			explore(next);
 			client.move(direction.reverse());
 		}
