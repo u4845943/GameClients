@@ -30,7 +30,7 @@ public class GoldCollector {
 		
 		@Override
 		public String toString(){
-			return coordinate + " " + path.toString() + " " + cost + " " + gold;
+			return coordinate.toString() + ", path: " + path.toString() + ", cost: " + cost + ", gold: " + gold;
 		}
 
 		@Override
@@ -74,7 +74,7 @@ public class GoldCollector {
 
 	public GoldCollector(TiledMap map, ServerService client) {
 		ArrayTiledMap tmp = (ArrayTiledMap) map;
-		System.out.println(client.getCurrentPosition().toString());
+//		System.out.println(client.getCurrentPosition().toString());
 		this.map = new ArrayTiledMap(map.toArray());
 		this.client = client;
 		getBase();
@@ -87,7 +87,7 @@ public class GoldCollector {
 			for (int lng = 0; lng < mapArray[0].length; lng++) {
 				char currentTile = map.get(new Coordinate(lat, lng));
 				if (currentTile == 'b') {
-					System.out.println("Base at ("+lat+", "+lng+")");
+//					System.out.println("Base at ("+lat+", "+lng+")");
 					this.baseCoordinate = new Coordinate(lat, lng);
 					return;
 				}
