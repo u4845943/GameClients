@@ -74,11 +74,6 @@ public class GoldCollector {
 
 	public GoldCollector(TiledMap map, ServerService client) {
 		ArrayTiledMap tmp = (ArrayTiledMap) map;
-		//Normalise the coords back to 0,0
-//		int normalisedClientLat = client.getCurrentPosition().lat - tmp.getSlat();
-//		int normalisedClientLng = client.getCurrentPosition().lng - tmp.getSlng();
-//		startCoord = new Coordinate(normalisedClientLat, normalisedClientLng);
-//		System.out.println(startCoord.toString());
 		System.out.println(client.getCurrentPosition().toString());
 		this.map = new ArrayTiledMap(map.toArray());
 		this.client = client;
@@ -94,6 +89,7 @@ public class GoldCollector {
 				if (currentTile == 'b') {
 					System.out.println("Base at ("+lat+", "+lng+")");
 					this.baseCoordinate = new Coordinate(lat, lng);
+					return;
 				}
 			}
 		}
