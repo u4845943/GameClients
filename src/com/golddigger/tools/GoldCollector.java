@@ -1,4 +1,4 @@
-package com.golddigger.util;
+package com.golddigger.tools;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,11 +20,13 @@ public class GoldCollector {
 		Coordinate coordinate;
 		Path path;
 		int cost;
+		int gold;
 
-		public Goal(Coordinate coordinate, Path path, int cost) {
+		public Goal(Coordinate coordinate, List<Direction> steps, int gold) {
 			this.coordinate = coordinate;
-			this.path = path;
-			this.cost = cost;
+			this.path = new Path(steps);
+			this.cost = steps.size();
+			this.gold = gold;
 		}
 		
 		@Override
@@ -72,6 +74,7 @@ public class GoldCollector {
 
 	public GoldCollector(TiledMap map, ServerService client) {
 		this.map = map;
+		this.map = new ArrayTiledMap(map.toArray());
 		this.client = client;
 		getBase();
 	}
@@ -112,17 +115,8 @@ public class GoldCollector {
 				case '8':
 				case '9':
 					System.out.println(tile+" gold at ("+lat+", "+lng+")");
-					CoordPathFinder finder = new CoordPathFinder(map, coord);
-					List<Coordinate> nodes = finder.compute(baseCoordinate);
-					List<Direction> steps = new ArrayList<Direction>();
-					for (int i = 0; i < nodes.size()-1; i++){
-						Direction step = Direction.parse(nodes.get(i+1).sub(nodes.get(i)));
-						if (step == null) continue;
-						else steps.add(step);
-					}
-					if (steps.size() < 1) continue;
-					else
-						goals.add(new Goal(coord, new Path(steps), steps.size()));
+					List<Direction> steps = buildPathSteps(coord);
+						goals.add(new Goal(coord, steps, Integer.valueOf(tile)));
 					break;
 				default:
 					break;
@@ -139,6 +133,21 @@ public class GoldCollector {
 		System.out.println("Done setting goals");
 	}
 	
+	private List<Direction> buildPathSteps(Coordinate coord) {
+		CoordPathFinder finder = new CoordPathFinder(map, coord);
+		List<Coordinate> nodes = finder.compute(baseCoordinate);
+		List<Direction> steps = new ArrayList<Direction>();
+		for (int i = 0; i < nodes.size()-1; i++){
+			Direction step = Direction.parse(nodes.get(i+1).sub(nodes.get(i)));
+			if (step == null) continue;
+			else steps.add(step);
+		}
+		if(steps.size() < 1)
+			return null;
+		else
+			return steps;
+	}
+
 	public void getGold() {
 		System.out.println("Getting the gold now");
 		

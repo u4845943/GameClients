@@ -6,7 +6,7 @@ import com.golddigger.service.ServerService;
 import com.golddigger.service.TiledMap;
 import com.golddigger.service.WebControllerClientService;
 import com.golddigger.tools.Explorer;
-import com.golddigger.util.GoldCollector;
+import com.golddigger.tools.GoldCollector;
 import com.golddigger.util.WebController;
 
 public class Robot extends Thread {
