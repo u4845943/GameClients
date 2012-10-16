@@ -48,4 +48,31 @@ public class WebControllerClientService implements ServerService {
 			return null;
 		}
 	}
+
+	@Override
+	public String drop() {
+		try {
+			return wc.drop().getText();
+		} catch (IOException e){
+			return null;
+		}
+	}
+
+	@Override
+	public String grab() {
+		try {
+			return wc.grab().getText();
+		} catch (IOException e){
+			return null;
+		}
+	}
+
+	@Override
+	public String next() {
+		try {
+			return wc.nextField().getText();
+		} catch (IOException e){
+			return null;
+		}
+	}
 }

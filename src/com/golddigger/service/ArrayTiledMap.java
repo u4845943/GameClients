@@ -4,6 +4,15 @@ import com.golddigger.model.Coordinate;
 
 public class ArrayTiledMap implements TiledMap {
 	private int slat, slng, flat, flng;
+
+	public int getSlng() {
+		return slng;
+	}
+
+	public int getSlat() {
+		return slat;
+	}
+
 	private char[][] tiles;
 	private final Coordinate offset;
 	

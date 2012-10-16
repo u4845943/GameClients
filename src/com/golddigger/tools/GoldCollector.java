@@ -1,7 +1,6 @@
 package com.golddigger.tools;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class GoldCollector {
 		
 		@Override
 		public String toString(){
-			return coordinate + " " + path.toString() + " " + cost;
+			return coordinate + " " + path.toString() + " " + cost + " " + gold;
 		}
 
 		@Override
@@ -50,6 +49,7 @@ public class GoldCollector {
 	private ServerService client;
 	private Coordinate baseCoordinate;
 	private List<Goal> goals =  new ArrayList<Goal>();
+	Coordinate startCoord;
 
 	/**
 	 * @param args
@@ -73,7 +73,13 @@ public class GoldCollector {
 	}
 
 	public GoldCollector(TiledMap map, ServerService client) {
-		this.map = map;
+		ArrayTiledMap tmp = (ArrayTiledMap) map;
+		//Normalise the coords back to 0,0
+//		int normalisedClientLat = client.getCurrentPosition().lat - tmp.getSlat();
+//		int normalisedClientLng = client.getCurrentPosition().lng - tmp.getSlng();
+//		startCoord = new Coordinate(normalisedClientLat, normalisedClientLng);
+//		System.out.println(startCoord.toString());
+		System.out.println(client.getCurrentPosition().toString());
 		this.map = new ArrayTiledMap(map.toArray());
 		this.client = client;
 		getBase();
@@ -103,7 +109,7 @@ public class GoldCollector {
 			for (int lng = 0; lng < mapArray[0].length; lng++) {
 				Coordinate coord = new Coordinate(lat, lng);
 				char tile = map.get(coord);
-				System.out.println(tile);
+//				System.out.println(tile);
 				switch (tile) {
 				case '1':
 				case '2':
@@ -115,8 +121,8 @@ public class GoldCollector {
 				case '8':
 				case '9':
 					System.out.println(tile+" gold at ("+lat+", "+lng+")");
-					List<Direction> steps = buildPathSteps(coord);
-						goals.add(new Goal(coord, steps, Integer.valueOf(tile)));
+					List<Direction> steps = buildPathSteps(coord, baseCoordinate);
+						goals.add(new Goal(coord, steps, Integer.parseInt(tile + "")));
 					break;
 				default:
 					break;
@@ -133,9 +139,11 @@ public class GoldCollector {
 		System.out.println("Done setting goals");
 	}
 	
-	private List<Direction> buildPathSteps(Coordinate coord) {
-		CoordPathFinder finder = new CoordPathFinder(map, coord);
-		List<Coordinate> nodes = finder.compute(baseCoordinate);
+	private List<Direction> buildPathSteps(Coordinate goal, Coordinate start) {
+		CoordPathFinder finder = new CoordPathFinder(map, goal);
+		List<Coordinate> nodes = finder.compute(start);
+		if(nodes == null || nodes.size() < 1)
+			return null;
 		List<Direction> steps = new ArrayList<Direction>();
 		for (int i = 0; i < nodes.size()-1; i++){
 			Direction step = Direction.parse(nodes.get(i+1).sub(nodes.get(i)));
@@ -151,34 +159,36 @@ public class GoldCollector {
 	public void getGold() {
 		System.out.println("Getting the gold now");
 		
-		CoordPathFinder finder = new CoordPathFinder(map, baseCoordinate);
-		List<Coordinate> backToBase = finder.compute(client.getCurrentPosition());
+		List<Direction> steps = buildPathSteps(baseCoordinate, baseCoordinate);
 		
-		List<Direction> steps = new ArrayList<Direction>();
-		
-		for(Direction s : steps){
-			System.out.print(s);
-		}
-		
-		for (int i = 0; i < backToBase.size()-1; i++){
-			Direction step = Direction.parse(backToBase.get(i+1).sub(backToBase.get(i)));
-			if (step == null) continue;
-			else steps.add(step);
-		}
-		if (steps.size() >= 1){
-			followPath(new Path(steps));
+		if (steps != null && steps.size() >= 1){
+			getAndBank(new Goal(baseCoordinate, steps, -1));
 		}
 		for(Goal goal : goals){
-			followPath(goal.path);
+			getAndBank(goal);
 		}
 	}
 
-	private void followPath(Path path) {
-		while(path.hasNext()){
-			client.move(path.next());
+	private void getAndBank(Goal goal) {
+		if(goal.gold == -1){
+			while (goal.path.hasNext()) {
+				client.move(goal.path.next());
+			}
+			return;
 		}
-		while(path.hasPrevious()){
-			client.move(path.previous());
+		while (goal.gold > 0) {
+			System.out.println("Now going for gold at " +  goal.coordinate.toString());
+			while (goal.path.hasNext()) {
+				client.move(goal.path.next());
+			}
+			client.grab();
+			while (goal.path.hasPrevious()) {
+				client.move(goal.path.previous().reverse());
+			}
+			String amount = client.drop().trim();
+			goal.gold =- Integer.parseInt(amount);
+			client.next();
 		}
+		System.out.println("Finished getting gold at " + goal.coordinate.toString());
 	}
 }
